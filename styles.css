@@ -1,0 +1,407 @@
+/**********************************
+      RESET & FONTS
+**********************************/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: 'Poppins', sans-serif;
+  overflow-x: hidden;
+  /* Animated gradient background */
+  background: linear-gradient(-45deg, #B9FFFF, #f0f7ff);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  transition: background 0.5s, color 0.5s;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/**********************************
+      WAVY HEADERS & FOOTERS
+**********************************/
+header, footer {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+  overflow: hidden;
+}
+header::after, footer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: cover;
+  z-index: -1;
+}
+header {
+  padding: 3em 1em 2em;
+  background: linear-gradient(90deg, #00DAA6, #02C6D0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+header::after {
+  bottom: -10px;
+  height: 100px;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23E1FAFF' fill-opacity='1' d='M0,32L60,42.7C120,53,240,75,360,85.3C480,96,600,96,720,85.3C840,75,960,53,1080,42.7C1200,32,1320,32,1380,32L1440,32L1440,120L1380,120C1320,120,1200,120,1080,120C960,120,840,120,720,120C600,120,480,120,360,120C240,120,120,120,60,120L0,120Z'/%3E%3C/svg%3E");
+}
+footer {
+  padding: 1.5em 1em;
+  background: linear-gradient(90deg, #00DAA6, #02C6D0);
+  box-shadow: 0 -3px 6px rgba(0, 0, 0, 0.2);
+}
+footer::before {
+  top: -60px;
+  height: 60px;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 1440 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill='%23f0f7ff' fill-opacity='1' d='M0,96L60,80C120,64,240,32,360,37.3C480,43,600,85,720,96C840,107,960,85,1080,85.3C1200,85,1320,107,1380,117.3L1440,128L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z'/%3E%3C/svg%3E");
+}
+
+/**********************************
+      HEADER NAVIGATION
+**********************************/
+header h1 {
+  margin-bottom: 0.4em;
+  font-size: 2rem;
+}
+nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+nav a {
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(90deg, #0066FF, #3399FF );
+  padding: 0.7em 1.4em;
+  border-radius: 20px;
+  font-weight: 600;
+  transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+}
+nav a:hover {
+  transform: translateY(-3px);
+  background: linear-gradient(90deg, #3399FF, #0066FF);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/**********************************
+      MAIN CONTENT
+**********************************/
+main {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2em 1em 4em;
+  flex: 1;
+}
+.dashboard {
+  display: none;
+  margin-top: 1em;
+  animation: fadeUp 0.8s ease;
+}
+.dashboard.active {
+  display: block;
+}
+@keyframes fadeUp {
+  0% { opacity: 0; transform: translateY(15px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.dashboard h2 {
+  margin-bottom: 0.6em;
+  font-size: 1.6rem;
+  color: #0000FF;
+}
+.dashboard p {
+  margin-bottom: 1em;
+  color: #444;
+}
+
+/**********************************
+      CONDITION MONITORING
+**********************************/
+#classrooms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+.classroom {
+  flex: 1 1 calc(300px);
+  background: linear-gradient(135deg, #ffcc80, #ffb74d); /* Gradient background */
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  padding: 1em;
+  transition: transform 0.3s;
+  animation: popIn 0.7s ease;
+}
+.classroom:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.classroom h3 {
+  margin-bottom: 0.3em;
+  font-size: 1.1rem; /* Increased font size */
+  color: #07C2DB;
+}
+.classroom ul {
+  list-style: none;
+  font-size: 1rem; /* Increased font size */
+  line-height: 1.4;
+  color: #444;
+}
+
+/**********************************
+      WINDOW AUTOMATION
+**********************************/
+#window-controls {
+  margin-top: 1em;
+}
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  margin: 1em 0;
+}
+.slider-container label {
+  width: 120px;
+  font-weight: 1000;
+  color: #07C2DB;
+}
+.slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #00DAA6, #02C6D0); /* Gradient for slider */
+  outline: none;
+  cursor: pointer;
+}
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00AACC;
+  cursor: pointer;
+}
+.slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #00AACC;
+  cursor: pointer;
+}
+.slider-container span {
+  width: 40px;
+  font-weight: 800;
+  text-align: right;
+  display: inline-block;
+  color: #07C2DB;
+}
+.shade-button {
+  background: linear-gradient(90deg, #0066FF, #3399FF);
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+.shade-button:hover {
+  background: linear-gradient(90deg, #3399FF, #0066FF);
+}
+
+/**********************************
+      BUTTONS
+**********************************/
+button {
+  display: inline-block;
+  padding: 0.7em 1.4em;
+  background: linear-gradient(90deg , #0066FF, #3399FF);
+  border: none;
+  border-radius: 30px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 1em;
+  font-weight: 600;
+}
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(90deg, #3399FF, #0066FF);
+}
+
+/**********************************
+      CHARTS
+**********************************/
+.chart {
+  width: 100%;
+  max-width: 550px; 
+  max-height: 300px; 
+  margin: 1.5em auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  padding: 1em;
+  animation: dropIn 0.7s ease;
+}
+@keyframes dropIn {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/**********************************
+      ALERTS SECTION
+**********************************/
+#alerts {
+  background: #f0f7ff;
+  border: 1px solid #07C2DB;
+  border-radius: 6px;
+  padding: 1em;
+  margin-top: 1em;
+  display: none; /* visible only if alerts exist */
+}
+#alerts h3 {
+  margin-bottom: 0.5em;
+  font-size: 1.1rem;
+  color: #07C2DB;
+}
+#alerts ul {
+  list-style: none;
+  font-size: 0.95rem;
+  color: #1D00F2;
+}
+
+/**********************************
+      LOGOS
+**********************************/
+.logo {
+  position: absolute;
+  top: 10px;
+}
+.logo.left {
+  left: 10px;
+  width: 120px; 
+  height: 80px; 
+}
+.logo.right {
+  right: 10px;
+  width: 130px; 
+  height: 80px; 
+}
+
+/**********************************
+      NOTIFICATIONS
+**********************************/
+#notifications-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 1em;
+}
+/* Additional styles for classroom appliance font size */
+.classroom ul li {
+  font-size: 1rem; /* Increased font size */
+}
+
+/* Styles for classroom list */
+.classroom {
+  background: linear-gradient(90deg, #FFD4B7, #FFFF9F); /* Gradient background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.classroom h3 {
+  margin: 0 0 10px; /* Margin for classroom title */
+  color: #333; /* Dark color for classroom title */
+}
+
+.classroom ul {
+  list-style-type: none; /* Remove default list styling */
+  padding: 0; /* Remove padding */
+}
+
+.classroom ul li {
+  margin: 5px 0; /* Margin between list items */
+  font-weight: bold; /* Bold text for appliances */
+  font-size: 1rem; /* Increased font size */
+}
+
+/* Styles for notifications cards */
+.notification-card {
+  flex: 1 1 calc(300px);
+  background: linear-gradient(90deg, #66CCFF, #CCFFFF);
+  color: #fff; /* Default text color */
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 1em;
+  animation: fadeUp 0.8s ease;
+}
+
+.notification-card h3 {
+  margin-bottom: 0.5em;
+  font-size: 1.2rem;
+  color: #000; /* Dark color for headings */
+  font-weight: bold; /* Make headings bold */
+}
+
+.notification-card p {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: #000; /* Dark color for paragraph text */
+  font-weight: bold; /* Make paragraph text bold */
+}
+
+/**********************************
+      MONITORING DASHBOARD
+**********************************/
+#monitoring-container {
+  display: flex;
+  justify-content: space-around; /* Space between cards */
+  margin-top: 20px;
+}
+
+.monitoring-card {
+  background-color: #fff; /* White background for cards */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+  padding: 20px; /* Padding inside the card */
+  text-align: center; /* Center text */
+  width: 45%; /* Width of each card */
+}
+
+.monitoring-card h4 {
+  margin: 0 0 10px; /* Margin for card title */
+  color: #4A90E2; /* Color for card title */
+}
+
+.monitoring-card p {
+  font-size: 2rem; /* Large font size for values */
+  color: #333; /* Dark color for values */
+  margin: 0; /* Remove default margin */
+}
+    /**********************************
+      FOOTER
+    **********************************/
+    footer p {
+      margin: 0;
+    }

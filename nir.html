@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gaudium School Automation - Vibrant Edition</title>
+
+  <!-- Google Fonts -->
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+
+
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <h1>Gaudium School Automation</h1>
+    <img src="logo-left.png" alt="Left Logo" class="logo left">
+    <img src="logo-right.png" alt="Right Logo" class="logo right">
+    <nav>      
+      <a href="#" onclick="showDashboard('condition-monitoring')">Condition Monitoring</a>
+      <a href="#" onclick="showDashboard('monitoring-dashboard')">Monitoring Dashboard</a>
+      <a href="#" onclick="showDashboard('window-automation')">Window Automation</a>
+      <a href="#" onclick="showDashboard('notifications')">Notifications</a>
+    </nav>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main>
+    
+    <!-- CONDITION MONITORING -->
+    <div id="condition-monitoring" class="dashboard active">
+      <h2>Condition Monitoring</h2>
+      <p>Monitor AC, Fan, and Solar Panel conditions in each classroom.</p>
+      <div id="classrooms"></div>
+    </div>
+
+    <!-- MONITORING DASHBOARD -->
+    <div id="monitoring-dashboard" class="dashboard">
+      <h2>Monitoring Dashboard</h2>
+      <div id="monitoring-container" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+        <div class="monitoring-card" style="background-color: #FFEB3B;">
+          <h4 style="color: #3F51B5;">🌡️ Temperature</h4>
+          <p id="temperature-value" style="font-size: 2em; color: #E91E63;">Loading...</p>
+        </div>
+        <div class="monitoring-card" style="background-color: #4CAF50;">
+          <h4 style="color: #FFFFFF;">💧 Humidity</h4>
+          <p id="humidity-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- WINDOW AUTOMATION -->
+    <div id="window-automation" class="dashboard">
+      <h2>Window Automation</h2>
+      <p>Control window opacity for each classroom. Adjust and apply shading as needed.</p>
+      <div id="window-controls"></div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div id="notifications" class="dashboard">
+      <h2>Notifications</h2>
+      <p>Important updates and system alerts.</p>
+      <div id="notifications-container">
+        <div class="notification-card" id="classrooms-attention-notifications">
+          <h3>Classrooms Needing Attention</h3>
+          <p id="classrooms-list-notifications">No classrooms needing attention.</p>
+        </div>
+        <div class="notification-card">
+          <h3>Solar Energy</h3>
+          <p>Total solar energy generated: <strong id="solar-energy">450 kWh</strong></p>
+        </div>
+        <div class="notification-card">
+          <h3>Piezoelectric Energy</h3>
+          <p>Total piezoelectric energy generated: <strong id="piezo-energy">120 kWh</strong></p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2025 Gaudium School</p>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script>
+    // ===================== DASHBOARD TOGGLING =====================
+    function showDashboard(id) {
+      const dashboards = document.querySelectorAll('.dashboard');
+      dashboards.forEach(db => db.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+    }
+
+    // =============== GLOBAL DATA ARRAYS ===============
+    let classData = [];  // Condition monitoring info
+    let classroomsNeedingAttention = []; // Classrooms with red appliances
+
+    // =============== CONNECT TO MQTT BROKER =================
+    const client = mqtt.connect('wss://test.mosquitto.org:8081'); // Use WebSocket protocol
+
+    // Subscribe to topics
+    client.on('connect', function () {
+      console.log('Connected to MQTT Broker');
+      client.subscribe('dht22/temperature', function (err) {
+        if (!err) {
+          console.log('Subscribed to temperature topic');
+        }
+      });
+      client.subscribe('dht22/humidity', function (err) {
+        if (!err) {
+          console.log('Subscribed to humidity topic');
+        }
+      });
+    });
+
+    // Handle incoming messages
+    client.on('message', function (topic, message) {
+      const payload = message.toString();
+      if (topic === 'dht22/temperature') {
+ console.log(`Received Temperature: ${payload}°C`);
+        document.getElementById('temperature-value').textContent = payload + '°C';
+      } else if (topic === 'dht22/humidity') {
+        console.log(`Received Humidity: ${payload}%`);
+        document.getElementById('humidity-value').textContent = payload + '%';
+      }
+    });
+
+    // =============== FETCH DATA FROM PYTHON BACKEND ===============
+    fetch('/api/data')
+      .then(response => response.json())
+      .then(data => {
+        if (data.classrooms) {
+          classData = data.classrooms;
+          populateClassrooms(classData);
+          populateWindowControls(classData);
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching data:", err);
+        demoFallbackData();
+      });
+
+    // =============== POPULATE UI ===============
+    function populateClassrooms(dataArr) {
+      const container = document.getElementById('classrooms');
+      container.innerHTML = '';
+      classroomsNeedingAttention = []; // Reset for each population
+      dataArr.forEach(cls => {
+        const div = document.createElement('div');
+        div.className = 'classroom';
+        const acColor = getColor(cls.ac);
+        const fanColor = getColor(cls.fan);
+        div.innerHTML = 
+          `<h3>${cls.name}</h3>
+          <ul>
+            <li style="color: ${acColor};"><strong>AC Maintenance: ${cls.ac}%</strong></li>
+            <li style="color: ${fanColor};"><strong>Fan Condition: ${cls.fan}%</strong></li>
+          </ul>`;
+        container.appendChild(div);
+
+        // Check if any appliance needs attention
+        if (acColor === 'red' || fanColor === 'red') {
+          classroomsNeedingAttention.push(cls.name);
+        }
+      });
+
+      // Update classrooms needing attention card
+      updateClassroomsAttention();
+    }
+
+    function getColor(percentage) {
+      if (percentage < 10) return 'red';
+      if (percentage >= 10 && percentage <= 50) return 'deepPink';
+      return 'green';
+    }
+
+    function updateClassroomsAttention() {
+      const classroomsList = document.getElementById('classrooms-list-notifications'); // Updated ID
+      if (classroomsNeedingAttention.length > 0) {
+        classroomsList.textContent = classroomsNeedingAttention.join(', ');
+      } else {
+        classroomsList.textContent = 'No classrooms needing attention.';
+      }
+    }
+
+    function populateWindowControls(dataArr) {
+      const controls = document.getElementById('window-controls');
+      controls.innerHTML = ''; // Clear previous controls
+
+      dataArr.forEach(cls => {
+        const sliderContainer = document.createElement('div');
+        sliderContainer.className = 'slider-container';
+        sliderContainer.innerHTML = `
+          <label>${cls.name}</label>
+          <input type="range" class="slider" min="0" max="100" value="50"
+                 onchange="adjustOpacity('${cls.name}', this.value)" />
+          <span id="opacity-value-${cls.name}">50%</span>
+          <button class="shade-button" id="shade-button-${cls.name}" onclick="toggleShades('${cls.name}')">Draw Shades</button>
+        `;
+        controls.appendChild(sliderContainer);
+      });
+    }
+
+    function adjustOpacity(name, val) {
+      document.getElementById(`opacity-value-${name}`).textContent = val + '%';
+      // Potentially send to backend for real device control
+    }
+
+    function toggleShades(classroomName) {
+      const button = document.getElementById(`shade-button-${classroomName}`);
+      const currentState = button.textContent;
+
+      if (currentState === 'Draw Shades') {
+        button.textContent = 'Open Shades';
+        alert(`Shades drawn for ${classroomName}!`);
+      } else {
+        button.textContent = 'Draw Shades';
+        alert(`Shades opened for ${classroomName}!`);
+      }
+    }
+
+    // =============== DEMO FALLBACK DATA ===============
+    function demoFallbackData() {
+      const sections = ['UKG', 'LKG', 'Class 1', 'Class 2', 'Class 3', 'Class 4',
+                        'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9',
+                        'Class 10', 'Class 11', 'Class 12'];
+      const subsections = ['A', 'B', 'C', 'D', 'E'];
+      let demoClassrooms = [];
+      sections.forEach(sec => {
+        subsections.forEach(sub => {
+          demoClassrooms.push({
+            name: `${sec} ${sub}`,
+            ac: Math.floor(Math.random() * 100),
+            fan: Math.floor(Math.random() * 100)
+          });
+        });
+      });
+
+ populateClassrooms(demoClassrooms);
+      populateWindowControls(demoClassrooms);
+    }
+  </script>
+</body>
+</html>
