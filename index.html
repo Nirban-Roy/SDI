@@ -40,20 +40,45 @@
       <div id="classrooms"></div>
     </div>
 
-    <!-- MONITORING DASHBOARD -->
-    <div id="monitoring-dashboard" class="dashboard">
-      <h2>Monitoring Dashboard</h2>
-      <div id="monitoring-container" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
-        <div class="monitoring-card" style="background-color: #FFEB3B;">
-          <h4 style="color: #3F51B5;">🌡️ Temperature</h4>
-          <p id="temperature-value" style="font-size: 2em; color: #E91E63;">Loading...</p>
-        </div>
-        <div class="monitoring-card" style="background-color: #4CAF50;">
-          <h4 style="color: #FFFFFF;">💧 Humidity</h4>
-          <p id="humidity-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
-        </div>
-      </div>
+<!-- MONITORING DASHBOARD -->
+<div id="monitoring-dashboard" class="dashboard">
+  <h2>Monitoring Dashboard</h2>
+  <div id="monitoring-container" style="display: flex; justify-content: space-around; flex-wrap: wrap;">
+    
+    <!-- Temperature Card -->
+    <div class="monitoring-card" style="background-color: #FFEB3B;">
+      <h4 style="color: #3F51B5;">🌡️ Temperature</h4>
+      <p id="temperature-value" style="font-size: 2em; color: #E91E63;">Loading...</p>
     </div>
+    
+    <!-- Humidity Card -->
+    <div class="monitoring-card" style="background-color: #4CAF50;">
+      <h4 style="color: #FFFFFF;">💧 Humidity</h4>
+      <p id="humidity-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
+    </div>
+    
+    <!-- CO Level Card -->
+    <div class="monitoring-card" style="background-color: #7B7B7B;">
+      <h4 style="color: #FFFFFF;">🧪 CO Level</h4>
+      <p id="co-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
+    </div>
+    
+    <!-- Pressure Card -->
+    <div class="monitoring-card" style="background-color: #FF7D7D;">
+      <h4 style="color: black;">🌡 <span style="color: #FFFFFF;">Pressure</span></h4>
+      <p id="pressure-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
+    </div>
+    
+    <!-- Altitude Card -->
+    <div class="monitoring-card" style="background-color: #EEB000;">
+      <h4 style="color: #FFFFFF;">🗻 Altitude</h4>
+      <p id="altitude-value" style="font-size: 2em; color: #FFFFFF;">Loading...</p>
+    </div>
+    
+  </div>
+</div>
+
+
 
     <!-- WINDOW AUTOMATION -->
     <div id="window-automation" class="dashboard">
@@ -89,7 +114,7 @@
     <p>&copy; 2025 Gaudium School</p>
   </footer>
 
-  <!-- SCRIPTS -->
+<!-- SCRIPTS -->
   <script>
     // ===================== DASHBOARD TOGGLING =====================
     function showDashboard(id) {
@@ -102,37 +127,39 @@
     let classData = [];  // Condition monitoring info
     let classroomsNeedingAttention = []; // Classrooms with red appliances
 
-    // =============== CONNECT TO MQTT BROKER =================
-    const client = mqtt.connect('wss://test.mosquitto.org:8081'); // Use WebSocket protocol
+// =============== CONNECT TO MQTT BROKER =================
+const client = mqtt.connect('wss://test.mosquitto.org:8081');
 
-    // Subscribe to topics
-    client.on('connect', function () {
-      console.log('Connected to MQTT Broker');
-      client.subscribe('dht22/temperature', function (err) {
-        if (!err) {
-          console.log('Subscribed to temperature topic');
-        }
-      });
-      client.subscribe('dht22/humidity', function (err) {
-        if (!err) {
-          console.log('Subscribed to humidity topic');
-        }
-      });
+// Subscribe to topics
+client.on('connect', function () {
+  console.log('Connected to MQTT Broker');
+  const topics = ['SDI/temperature', 'SDI/humidity', 'SDI/co', 'SDI/pressure', 'SDI/altitude'];
+  topics.forEach(topic => {
+    client.subscribe(topic, function (err) {
+      if (!err) console.log(`Subscribed to ${topic}`);
     });
+  });
+});
 
-    // Handle incoming messages
-    client.on('message', function (topic, message) {
-      const payload = message.toString();
-      if (topic === 'dht22/temperature') {
- console.log(`Received Temperature: ${payload}°C`);
-        document.getElementById('temperature-value').textContent = payload + '°C';
-      } else if (topic === 'dht22/humidity') {
-        console.log(`Received Humidity: ${payload}%`);
-        document.getElementById('humidity-value').textContent = payload + '%';
-      }
-    });
+// Handle incoming messages
+client.on('message', function (topic, message) {
+  const payload = message.toString();
+  console.log(`Received ${topic}: ${payload}`);
+  
+  if (topic === 'SDI/temperature') {
+    document.getElementById('temperature-value').textContent = payload + '°C';
+  } else if (topic === 'SDI/humidity') {
+    document.getElementById('humidity-value').textContent = payload + '%';
+  } else if (topic === 'SDI/co') {
+    document.getElementById('co-value').textContent = payload + ' ppm';
+  } else if (topic === 'SDI/pressure') {
+    document.getElementById('pressure-value').textContent = payload + ' hPa';
+  } else if (topic === 'SDI/altitude') {
+    document.getElementById('altitude-value').textContent = payload + ' m';
+  }
+});
 
-    // =============== FETCH DATA FROM PYTHON BACKEND ===============
+// =============== FETCH DATA FROM PYTHON BACKEND ===============
     fetch('/api/data')
       .then(response => response.json())
       .then(data => {
